@@ -1,12 +1,8 @@
 import argparse, sys, json
 import queue, time, threading
 
-import numpy as np
-import tkinter as tk
-from itertools import count
-
-import matplotlib.pyplot as plt
-from PIL import Image, ImageTk
+import os
+import cv2
 
 import sounddevice as sd
 from vosk import Model, KaldiRecognizer
@@ -97,29 +93,49 @@ class SpeechText:
             
             print('\n\n\nFinished:', textResults)
 
-
-images_map = {}
 letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-def load_images():
-    for letter in letters:
-        image = Image.open('letters/' + letter + '.jpg')
-        imageArr = np.asarray(image)
-        images_map[letter] = imageArr
 
-def show_images(sq):
-    fig, ax = plt.subplots(1,1)
-    image = np.array([[1,1,1], [2,2,2], [3,3,3]])
-    im_show_method = ax.imshow(image)
+gifs_path = "D://sixthsemester//tarp//project//Speech-Sign-Language-Interconversion//ISL_Gifs"
+isl_gifs = os.listdir(gifs_path)
+
+def convert_gif_to_frames(gif):
+
+    frame_num = 0
+    frame_list = []
+
+    while True:
+        try:
+            okay, frame = gif.read()
+            frame_list.append(frame)
+            if not okay:
+                break
+            frame_num += 1
+        except KeyboardInterrupt:
+            break
+
+    return frame_list
+
+isl_gif_reverse_lookup = {x: convert_gif_to_frames(cv2.VideoCapture("ISL_Gifs/" + x)) for x in isl_gifs}
+images_map = {letter: cv2.imread("letters/" + letter + ".jpg", 0) for letter in letters}
+
+def show_isl_loop(sq):
+    cv2.namedWindow("Resized_Window", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Resized_Window", 360, 240)
     
     while(True):
-        time.sleep(1)
+        cv2.waitKey(1000)
         text = sq.get()
-        text = text.lower().replace(" ", "")
         try:
-            for c in text:
-                im_show_method.set_data(images_map[c])
-                fig.canvas.draw_idle()
-                plt.pause(0.2)
+            if(isl_gif_reverse_lookup.get(text + ".gif") != None):
+                gif_frames = isl_gif_reverse_lookup.get(text + ".gif")
+                for frame in gif_frames:
+                    cv2.imshow('Resized_Window', frame)
+                    cv2.waitKey(50)
+            else:
+                text = text.lower().replace(" ", "")
+                for c in text:
+                    cv2.imshow('Resized_Window', images_map[c])
+                    cv2.waitKey(500)
         except(Exception):
             pass
 
@@ -129,14 +145,12 @@ def speech_text_callback(sto):
 if __name__ == '__main__':
 
     sentence_queue = queue.Queue()
-    load_images()
-
     speech_text_object = SpeechText(sentence_queue)
     speech_text_thread = threading.Thread(target=speech_text_callback, args=([speech_text_object]))
 
     try:
         speech_text_thread.start()
-        show_images(sentence_queue)
+        show_isl_loop(sentence_queue)
 
     except(KeyboardInterrupt):
         speech_text_object.running = False
