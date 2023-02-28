@@ -135,7 +135,7 @@ def show_isl_loop(sq):
                 text = text.lower().replace(" ", "")
                 for c in text:
                     cv2.imshow('Resized_Window', images_map[c])
-                    cv2.waitKey(500)
+                    cv2.waitKey(350)
         except(Exception):
             pass
 
