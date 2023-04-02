@@ -1,26 +1,23 @@
-# Importing Libraries
 import numpy as np
-import math
-import cv2
-import os, sys
-import traceback
+import math, cv2, os
 import pyttsx3
+import traceback
+
 from keras.models import load_model
-from cvzone.HandTrackingModule import HandDetector
 from string import ascii_uppercase
+
 import enchant
 ddd=enchant.Dict("en-US")
+
+from cvzone.HandTrackingModule import HandDetector
 hd = HandDetector(maxHands=1)
 hd2 = HandDetector(maxHands=1)
+
 import tkinter as tk
 from PIL import Image, ImageTk
 
 offset=29
-
 os.environ["THEANO_FLAGS"] = "device=cuda, assert_no_cpu_op=True"
-
-
-# Application :
 
 class Application:
 
@@ -104,16 +101,11 @@ class Application:
         self.clear.place(x=1205, y=630)
         self.clear.config(text="Clear", font=("Courier", 20), wraplength=100, command=self.clear_fun)
 
-
-
-
-
         self.str = " "
         self.ccc=0
         self.word = " "
         self.current_symbol = "C"
         self.photo = "Empty"
-
 
         self.word1=" "
         self.word2 = " "
@@ -135,13 +127,11 @@ class Application:
             self.panel.config(image=imgtk)
 
             if hands:
-                # #print(" --------- lmlist=",hands[1])
                 hand = hands[0]
                 x, y, w, h = hand['bbox']
                 image = cv2image_copy[y - offset:y + h + offset, x - offset:x + w + offset]
 
                 white = cv2.imread("white.jpg")
-                # img_final=img_final1=img_final2=0
 
                 handz = hd2.findHands(image, draw=False, flipType=True)
                 print(" ", self.ccc)
@@ -149,7 +139,6 @@ class Application:
                 if handz:
                     hand = handz[0]
                     self.pts = hand['lmList']
-                    # x1,y1,w1,h1=hand['bbox']
 
                     os = ((400 - w) // 2) - 15
                     os1 = ((400 - h) // 2) - 15
@@ -193,11 +182,6 @@ class Application:
                     self.panel2.config(image=imgtk)
 
                     self.panel3.config(text=self.current_symbol, font=("Courier", 30))
-
-                    #self.panel4.config(text=self.word, font=("Courier", 30))
-
-
-
                     self.b1.config(text=self.word1, font=("Courier", 20), wraplength=825, command=self.action1)
                     self.b2.config(text=self.word2, font=("Courier", 20), wraplength=825,  command=self.action2)
                     self.b3.config(text=self.word3, font=("Courier", 20), wraplength=825,  command=self.action3)
@@ -226,7 +210,6 @@ class Application:
         last_idx = len(self.str)
         self.str=self.str[:idx_word]
         self.str=self.str+self.word2.upper()
-        #self.str[idx_word:last_idx] = self.word2
 
 
     def action3(self):
@@ -279,7 +262,6 @@ class Application:
             if (self.pts[6][1] < self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and self.pts[18][1] < self.pts[20][
                 1]):
                 ch1 = 0
-                # print("00000")
 
         # condition for [o][s]
         l = [[2, 2], [2, 1]]
@@ -287,7 +269,6 @@ class Application:
             if (self.pts[5][0] < self.pts[4][0]):
                 ch1 = 0
                 print("++++++++++++++++++")
-                # print("00000")
 
         # condition for [c0][aemnst]
         l = [[0, 0], [0, 6], [0, 2], [0, 5], [0, 1], [0, 7], [5, 2], [7, 6], [7, 1]]
@@ -296,7 +277,6 @@ class Application:
             if (self.pts[0][0] > self.pts[8][0] and self.pts[0][0] > self.pts[4][0] and self.pts[0][0] > self.pts[12][0] and self.pts[0][0] > self.pts[16][
                 0] and self.pts[0][0] > self.pts[20][0]) and self.pts[5][0] > self.pts[4][0]:
                 ch1 = 2
-                # print("22222")
 
         # condition for [c0][aemnst]
         l = [[6, 0], [6, 6], [6, 2]]
@@ -304,7 +284,6 @@ class Application:
         if pl in l:
             if self.distance(self.pts[8], self.pts[16]) < 52:
                 ch1 = 2
-                # print("22222")
 
 
         # condition for [gh][bdfikruvw]
@@ -341,7 +320,6 @@ class Application:
         if pl in l:
             if self.distance(self.pts[4], self.pts[11]) > 55:
                 ch1 = 4
-                # print("44444")
 
         # con for [l][d]
         l = [[1, 4], [1, 6], [1, 1]]
@@ -351,7 +329,6 @@ class Application:
                     self.pts[6][1] > self.pts[8][1] and self.pts[10][1] < self.pts[12][1] and self.pts[14][1] < self.pts[16][1] and self.pts[18][1] <
                     self.pts[20][1]):
                 ch1 = 4
-                # print("44444")
 
         # con for [l][gh]
         l = [[3, 6], [3, 4]]
@@ -359,7 +336,6 @@ class Application:
         if pl in l:
             if (self.pts[4][0] < self.pts[0][0]):
                 ch1 = 4
-                # print("44444")
 
         # con for [l][c0]
         l = [[2, 2], [2, 5], [2, 4]]
@@ -367,7 +343,6 @@ class Application:
         if pl in l:
             if (self.pts[1][0] < self.pts[12][0]):
                 ch1 = 4
-                # print("44444")
 
         # con for [l][c0]
         l = [[2, 2], [2, 5], [2, 4]]
@@ -375,7 +350,6 @@ class Application:
         if pl in l:
             if (self.pts[1][0] < self.pts[12][0]):
                 ch1 = 4
-                # print("44444")
 
         # con for [gh][z]
         l = [[3, 6], [3, 5], [3, 4]]
@@ -401,7 +375,6 @@ class Application:
         if pl in l:
             if self.pts[4][0] > self.pts[0][0]:
                 ch1 = 5
-                # print("55555")
 
         # con for [pqz][aemnst]
         l = [[0, 2], [0, 6], [0, 1], [0, 5], [0, 0], [0, 7], [0, 4], [0, 3], [2, 7]]
@@ -409,7 +382,6 @@ class Application:
         if pl in l:
             if self.pts[0][0] < self.pts[8][0] and self.pts[0][0] < self.pts[12][0] and self.pts[0][0] < self.pts[16][0] and self.pts[0][0] < self.pts[20][0]:
                 ch1 = 5
-                # print("55555")
 
         # con for [pqz][yj]
         l = [[5, 7], [5, 2], [5, 6]]
@@ -417,7 +389,6 @@ class Application:
         if pl in l:
             if self.pts[3][0] < self.pts[0][0]:
                 ch1 = 7
-                # print("77777")
 
         # con for [l][yj]
         l = [[4, 6], [4, 2], [4, 4], [4, 1], [4, 5], [4, 7]]
@@ -425,7 +396,6 @@ class Application:
         if pl in l:
             if self.pts[6][1] < self.pts[8][1]:
                 ch1 = 7
-                # print("77777")
 
         # con for [x][yj]
         l = [[6, 7], [0, 7], [0, 1], [0, 0], [6, 4], [6, 6], [6, 5], [6, 1]]
@@ -433,7 +403,6 @@ class Application:
         if pl in l:
             if self.pts[18][1] > self.pts[20][1]:
                 ch1 = 7
-                # print("77777")
 
         # condition for [x][aemnst]
         l = [[0, 4], [0, 2], [0, 3], [0, 1], [0, 6]]
@@ -508,7 +477,6 @@ class Application:
 
         # con for [d][pqz]
         fg = 19
-        # print("_________________ch1=",ch1," ch2=",ch2)
         l = [[5, 0], [3, 4], [3, 0], [3, 1], [3, 5], [5, 5], [5, 4], [5, 1], [7, 6]]
         pl = [ch1, ch2]
         if pl in l:
